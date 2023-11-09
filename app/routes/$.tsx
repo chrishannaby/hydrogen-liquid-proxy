@@ -39,7 +39,8 @@ export async function action({context, request}: ActionFunctionArgs) {
     }),
   );
   try {
-    return await fetch(newRequest);
+    const response = await fetch(newRequest);
+    return new Response(response.body, response);
   } catch (e: any) {
     return new Response(JSON.stringify({error: e.message}), {
       status: 500,
