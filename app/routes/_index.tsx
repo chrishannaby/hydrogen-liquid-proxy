@@ -70,7 +70,6 @@ function RecommendedProducts({
                   key={product.id}
                   className="recommended-product"
                   to={`/products/${product.handle}`}
-                  reloadDocument
                 >
                   <Image
                     data={product.images.nodes[0]}

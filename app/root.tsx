@@ -15,13 +15,17 @@ import {
   useLoaderData,
   ScrollRestoration,
   isRouteErrorResponse,
+  unstable_useBlocker as useBlocker,
   type ShouldRevalidateFunction,
+  unstable_Blocker as Blocker,
+  unstable_BlockerFunction as BlockerFunction,
 } from '@remix-run/react';
 import type {CustomerAccessToken} from '@shopify/hydrogen/storefront-api-types';
 import favicon from '../public/favicon.svg';
 import resetStyles from './styles/reset.css';
 import appStyles from './styles/app.css';
 import {Layout} from '~/components/Layout';
+import {useCallback} from 'react';
 
 /**
  * This is important to avoid re-fetching root queries on sub-navigations
@@ -110,6 +114,21 @@ export async function loader({context}: LoaderFunctionArgs) {
 export default function App() {
   const nonce = useNonce();
   const data = useLoaderData<typeof loader>();
+
+  let shouldBlock = useCallback<BlockerFunction>(
+    ({currentLocation, nextLocation}) => {
+      if (currentLocation.pathname === nextLocation.pathname) return false;
+      if (window?.__remixManifest) {
+        console.log('remix manifest', window.__remixManifest);
+        console.log('nextLocation', nextLocation);
+        return false;
+      }
+      return false;
+    },
+    [],
+  );
+
+  useBlocker(shouldBlock);
 
   return (
     <html lang="en">

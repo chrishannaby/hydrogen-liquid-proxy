@@ -3,6 +3,7 @@ import {RemixServer} from '@remix-run/react';
 import isbot from 'isbot';
 import {renderToReadableStream} from 'react-dom/server';
 import {createContentSecurityPolicy} from '@shopify/hydrogen';
+import {proxyToOnlineStore} from './proxy';
 
 export default async function handleRequest(
   request: Request,
@@ -11,6 +12,15 @@ export default async function handleRequest(
   remixContext: EntryContext,
 ) {
   const {nonce, header, NonceProvider} = createContentSecurityPolicy();
+
+  if (responseStatusCode === 404) {
+    console.log(request.url);
+    try {
+      return proxyToOnlineStore(request);
+    } catch (error) {
+      console.log(error);
+    }
+  }
 
   const body = await renderToReadableStream(
     <NonceProvider>
